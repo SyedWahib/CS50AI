@@ -165,7 +165,7 @@ def max_value(board):
 
 def min_value(board):
     """
-    Returns the lowest value for maximizer
+    Returns the lowest value for maxim
     """
     if terminal(board):
         return utility(board)
