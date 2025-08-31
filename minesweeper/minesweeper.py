@@ -19,7 +19,7 @@ class Minesweeper():
         for i in range(self.height):
             row = []
             for j in range(self.width):
-                row.append(False)
+                row.append(False)   # False means no mine
             self.board.append(row)
 
         # Add mines randomly
