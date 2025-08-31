@@ -49,6 +49,10 @@ class Minesweeper():
         print("--" * self.width + "-")
 
     def is_mine(self, cell):
+        """"
+        Function for checking if a given cell contains a mine
+        """
+        # Cell is a tuple and i, j is unpacking it
         i, j = cell
         return self.board[i][j]
 
