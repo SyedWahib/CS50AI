@@ -109,8 +109,8 @@ class Sentence():
         """
         Returns the set of all cells in self.cells known to be mines.
         """
-        if self.cells == self.count:
-            return set(self.cells)
+        if len(self.cells) == self.count:
+            return self.cells
         return set()
 
     def known_safes(self):
@@ -262,7 +262,7 @@ class MinesweeperAI():
         This function may use the knowledge in self.mines, self.safes
         and self.moves_made, but should not modify any of those values.
         """
-        
+
         safe_moves = self.safes - self.moves_made
         return safe_moves.pop() if safe_moves else None
 
