@@ -245,11 +245,8 @@ class MinesweeperAI():
             new_inferences = []
 
             for s1 in self.knowledge:
-                for s2 in self.knowledge:
-                    if s1 == s2:
-                        continue
-                    
-                    if s1.cells.issubset(s2.cells):
+                for s2 in self.knowledge:                    
+                    if s1.cells.issubset(s2.cells) and s1 != s2:
                         new_cells = s2.cells -s1.cells
                         new_count = s2.count - s1.count
                         new_sentence = Sentence(new_cells, new_count)
