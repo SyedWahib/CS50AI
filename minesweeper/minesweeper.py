@@ -262,6 +262,7 @@ class MinesweeperAI():
         This function may use the knowledge in self.mines, self.safes
         and self.moves_made, but should not modify any of those values.
         """
+        
         safe_moves = self.safes - self.moves_made
         return safe_moves.pop() if safe_moves else None
 
@@ -272,6 +273,7 @@ class MinesweeperAI():
             1) have not already been chosen, and
             2) are not known to be mines
         """
+
         possible_moves = []
         for i in range(self.height):
             for j in range(self.width):
