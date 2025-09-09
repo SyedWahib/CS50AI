@@ -89,7 +89,7 @@ def sample_pagerank(corpus, damping_factor, n):
 
     visits = {page:0 for page in corpus}
 
-    current_page = random.choice(List(corpus.keys()))
+    current_page = random.choice(list(corpus.keys()))
 
     for _ in range(n):
         visits[current_page] +=1
@@ -103,7 +103,7 @@ def sample_pagerank(corpus, damping_factor, n):
         )[0]
 
         total = sum(visits.values())
-        return {page:count/total for page, count in visits.items()}
+    return {page:count/total for page, count in visits.items()}
 
 
 
@@ -116,8 +116,32 @@ def iterate_pagerank(corpus, damping_factor):
     their estimated PageRank value (a value between 0 and 1). All
     PageRank values should sum to 1.
     """
-    raise NotImplementedError
+    N = len(corpus)
 
+    pagerank = {page: 1/N for page in corpus}
+
+    while True:
+        new_pagerank = {}
+        max_change = 0
+
+        for page in corpus:
+            new_pr = (1 - damping_factor) / N
+            for linking_page, links in corpus.items():
+                if not links:
+                    links = list(corpus.keys())
+                if page in links:
+                    new_pr += damping_factor * (pagerank[linking_page]/len(links))
+            new_pagerank[page] = new_pr
+
+            max_change = max(max_change, abs(new_pr-pagerank[page]))
+        
+        pagerank = new_pagerank
+
+        if max_change < 0.001:
+            break
+    
+    total = sum(pagerank.values())
+    return {page:rank/total for page, rank in pagerank.items()}
 
 if __name__ == "__main__":
     main()
