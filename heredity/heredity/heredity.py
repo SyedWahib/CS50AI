@@ -135,11 +135,10 @@ def joint_probability(people, one_gene, two_genes, have_trait):
     The probability returned should be the probability that
         * everyone in set `one_gene` has one copy of the gene, and
         * everyone in set `two_genes` has two copies of the gene, and
-        * everyone not in `one_gene` or `two_gene` does not have the gene, and
+        * everyone not in `one_gene` or `two_genes` does not have the gene, and
         * everyone in set `have_trait` has the trait, and
         * everyone not in set` have_trait` does not have the trait.
     """
-
     probability = 1.0
 
     for person in people:
@@ -149,53 +148,53 @@ def joint_probability(people, one_gene, two_genes, have_trait):
             gene_count = 2
         else:
             gene_count = 0
-        
+
         person_data = people[person]
         mother = person_data["mother"]
         father = person_data["father"]
 
-        if mother is None and father is None:
+        if mother is None or father is None:
             prob_gene = PROBS["gene"][gene_count]
         else:
             prob_gene = 0
-
-            for mother_genes in [0,1,2]:
-                for father_genes in [0,1,2]:
-                    prob_parents = (
-                        (1 if mother is None else
-                        (mother in one_gene) == (mother_genes == 1) or
-                        (mother in two_genes) == (mother_genes == 2)) *
-                        (1 if father is None else
-                        (father in one_gene) == (father_genes == 1) or
-                        (father in two_genes) == (father_genes == 2))
-
-                    )
-
-                    if prob_parents == 0:
+            
+            for mother_genes in [0, 1, 2]:
+                if mother in one_gene and mother_genes != 1:
+                    continue
+                if mother in two_genes and mother_genes != 2:
+                    continue
+                if mother not in one_gene and mother not in two_genes and mother_genes != 0:
+                    continue
+                    
+                for father_genes in [0, 1, 2]:
+                    if father in one_gene and father_genes != 1:
+                        continue
+                    if father in two_genes and father_genes != 2:
+                        continue
+                    if father not in one_gene and father not in two_genes and father_genes != 0:
                         continue
 
-                    prob_from_mother = (mother_genes /2) * (1-PROBS["mutation"]) + \
-                        (1-mother_genes /2) * PROBS["mutation"]
-                    prob_from_father = (father_genes/2) * (1 - PROBS["mutation"]) + \
-                        (1 - father_genes / 2) * PROBS["mutation"]
+                    prob_from_mother = (mother_genes / 2) * (1 - PROBS["mutation"]) + \
+                                     (1 - mother_genes / 2) * PROBS["mutation"]
+                    prob_from_father = (father_genes / 2) * (1 - PROBS["mutation"]) + \
+                                     (1 - father_genes / 2) * PROBS["mutation"]
 
                     if gene_count == 2:
-                        prob_given_parents = prob_from_mother * prob_from_father
-                    elif gene_count ==1:
-                        prob_given_parents = (prob_from_mother * (1-prob_from_father) +
-                        (1 - prob_from_mother) * prob_from_father)
+                        prob = prob_from_mother * prob_from_father
+                    elif gene_count == 1:
+                        prob = prob_from_mother * (1 - prob_from_father) + \
+                               (1 - prob_from_mother) * prob_from_father
                     else:
-                        prob_given_parents = (1-prob_from_mother) * (1 - prob_from_father)
-
-                    prob_gene += prob_parents * prob_given_parents
-
-                    has_trait = person in have_trait
-                    prob_trait = PROBS["trait"][gene_count][has_trait]
-
-                    probability *= prob_gene * prob_trait
-
-                return probability
+                        prob = (1 - prob_from_mother) * (1 - prob_from_father)
                     
+                    prob_gene += prob
+
+        has_trait = person in have_trait
+        prob_trait = PROBS["trait"][gene_count][has_trait]
+        
+        probability *= prob_gene * prob_trait
+        
+    return probability
 
 
 def update(probabilities, one_gene, two_genes, have_trait, p):
