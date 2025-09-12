@@ -152,14 +152,14 @@ def joint_probability(people, one_gene, two_genes, have_trait):
         
         person_data = people[person]
         mother = person_data["mother"]
-        mother = person_data["father"]
+        father = person_data["father"]
 
         if mother is None and father is None:
             prob_gene = PROBS["gene"][gene_count]
         else:
             prob_gene = 0
 
-            for mother, genes in [0,1,2]:
+            for mother_genes in [0,1,2]:
                 for father_genes in [0,1,2]:
                     prob_parents = (
                         (1 if mother is None else
@@ -194,7 +194,7 @@ def joint_probability(people, one_gene, two_genes, have_trait):
 
                     probability *= prob_gene * prob_trait
 
-                return probablity
+                return probability
                     
 
 
@@ -205,7 +205,18 @@ def update(probabilities, one_gene, two_genes, have_trait, p):
     Which value for each distribution is updated depends on whether
     the person is in `have_gene` and `have_trait`, respectively.
     """
-    raise NotImplementedError
+    for person in probabilities:
+        if person in one_gene:
+            gene_count = 1
+        elif person in two_genes:
+            gene_count=2
+        else:
+            gene_count = 0
+        
+        has_trait = person in have_trait
+
+        probabilities[person]["gene"][gene_count] += p
+        probabilities[person]["trait"][has_trait] += p
 
 
 def normalize(probabilities):
