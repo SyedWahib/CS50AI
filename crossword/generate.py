@@ -104,7 +104,7 @@ class CrosswordCreator():
             for word in domain:
                 if len(word) != variable.length:
                     self.domains[variable].remove(word)
-                    
+
 
     def revise(self, x, y):
         """
@@ -115,7 +115,29 @@ class CrosswordCreator():
         Return True if a revision was made to the domain of `x`; return
         False if no revision was made.
         """
-        raise NotImplementedError
+        revised = False
+        overlap = self.crossword.overlaps.get((x,y))
+
+        if not overlap:
+            return False
+        
+        i, j = overlap
+
+        # If modifying set real time then runtime error
+        x_domain = self.domains[x].copy()
+
+        for x_word in x_domain:
+            has_match = any(
+                y_word[j] == x_word[i]
+                for y_word in self.domains[y]
+            )
+
+            if not has_match:
+                self.domains[x].remove(x_word)
+                revised = True
+
+        return revised
+
 
     def ac3(self, arcs=None):
         """
@@ -126,14 +148,36 @@ class CrosswordCreator():
         Return True if arc consistency is enforced and no domains are empty;
         return False if one or more domains end up empty.
         """
-        raise NotImplementedError
+
+        queue = []
+
+        if arcs is None:
+            for x in self.crossword.variables:
+                for y in self.crossword.neighbors(x):
+                    queue.append((x,y))
+        
+        else:
+            queue = list(arcs)
+        
+        while queue:
+            x, y = queue.pop(0)
+
+            if self.revise(x,y):
+                if not self.domains[x]:
+                    return False
+                
+                for z in self.crossword.neighbors(x):
+                    if z != y:
+                        queue.append((z,x))
+        return True
+        
 
     def assignment_complete(self, assignment):
         """
         Return True if `assignment` is complete (i.e., assigns a value to each
         crossword variable); return False otherwise.
         """
-        raise NotImplementedError
+        return all(var in assignment for var in self.crossword.variables)
 
     def consistent(self, assignment):
         """
