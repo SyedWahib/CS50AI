@@ -248,7 +248,28 @@ class CrosswordCreator():
 
         If no assignment is possible, return None.
         """
-        raise NotImplementedError
+        if self.assignment_complete(assignment):
+            return assignment
+        var = self.select_unassigned_variable(assignment)
+
+        for value in self.order_domain_values(var, assignment):
+            new_assignment = assignment.copy()
+            new_assignment[var] = value
+
+            if self.consistent(new_assignment):
+                old_domains = {v: self.domains[v].copy() for v in self.domains}
+
+                self.domains[var] = {value}
+
+                self.ac3([(neighbor,var) for neighbor in self.crossword.neighbors(var)])
+
+                result = self.backtrack(new_assignment)
+                if result is not None:
+                    return result
+
+                self.domains = old_domains
+                
+        return None
 
 
 def main():
